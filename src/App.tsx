@@ -8,6 +8,8 @@ import { MovieDetailPage } from './pages/MovieDetailPage';
 import { ProfilePage }    from './pages/ProfilePage';
 import { LoginPage, RegisterPage } from './pages/AuthPages';
 import { SurveyPage }    from './pages/SurveyPage';
+import { RecommendationsPage } from './pages/RecommendationsPage';
+import { ExplainerPage } from './pages/ExplainerPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +37,10 @@ export default function App() {
             <Route path="/survey"     element={
               <ProtectedRoute><SurveyPage /></ProtectedRoute>
             } />
+            <Route path="/recommendations" element={
+              <ProtectedRoute><RecommendationsPage /></ProtectedRoute>} />
+              <Route path="/explainer" element={
+              <ProtectedRoute><ExplainerPage /></ProtectedRoute>} />
           </Routes>
         </div>
         <Toaster

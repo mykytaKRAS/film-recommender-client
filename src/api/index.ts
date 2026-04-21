@@ -118,3 +118,47 @@ export const surveyApi = {
     await api.post('/api/survey', { genreWeights, favoriteMovieIds });
   },
 };
+
+// ── Recommendations ────────────────────────────────────────────────────
+
+export const recommendationsApi = {
+  getStatus: async () => {
+    const { data } = await api.get<{
+      ratingCount: number;
+      collaborativeAvailable: boolean;
+      ratingsUntilCollaborative: number;
+    }>('/api/recommendations/status');
+    return data;
+  },
+
+  get: async (algorithm?: string) => {
+    const { data } = await api.get<{
+      algorithm: string;
+      totalCount: number;
+      recommendations: Array<{
+        recommendationId: string;
+        movie: MovieSummary;
+        score: number;
+        algorithm: string;
+      }>;
+    }>('/api/recommendations', {
+      params: algorithm ? { algorithm } : {},
+    });
+    return data;
+  },
+
+  vectorize: async () => {
+    await api.post('/api/recommendations/vectorize');
+  },
+};
+
+export const explainerApi = {
+  getContentBasedLog: async () => {
+    const { data } = await api.get('/api/recommendations/explain/content');
+    return data;
+  },
+  getCollaborativeLog: async () => {
+    const { data } = await api.get('/api/recommendations/explain/collaborative');
+    return data;
+  },
+};

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Film, User, LogOut, LogIn } from 'lucide-react';
+import { Film, User, LogOut, LogIn, Sparkles } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 export function Navbar() {
@@ -20,6 +20,13 @@ export function Navbar() {
           <span>CineList</span>
         </Link>
 
+        {isAuthenticated && (
+        <Link to="/recommendations" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm">
+          <Sparkles size={16} />
+          Recommendations
+        </Link>
+)}
+<Link to="/explainer" className="...">Math Log</Link>
         <div className="flex items-center gap-4">
           {isAuthenticated ? (
             <>
