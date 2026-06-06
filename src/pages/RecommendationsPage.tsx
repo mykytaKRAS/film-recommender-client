@@ -1,23 +1,132 @@
 // src/pages/RecommendationsPage.tsx
+// Оновлена версія з was_clicked та правильним відображенням метрик
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Sparkles, Brain, Users, Lock, RefreshCw, Star } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Sparkles, Brain, Users, Lock, RefreshCw, Star, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { recommendationsApi } from '../api';
-import { MovieCard } from '../components/MovieCard';
+import { api } from './../api/client';
+import type { MovieSummary } from '../types';
 
-const TMDB_IMAGE = 'https://image.tmdb.org/t/p/w300';
+const TMDB_IMAGE  = 'https://image.tmdb.org/t/p/w300';
+const PLACEHOLDER = 'https://via.placeholder.com/300x450?text=No+Image';
 
 type Algorithm = 'content_based' | 'collaborative';
+
+interface RecommendationItem {
+  recommendationId: string;
+  movie: MovieSummary;
+  score: number;
+  algorithm: string;
+}
+
+// ── API функції ───────────────────────────────────────────────
+
+const markClicked = async (recommendationId: string) => {
+  await api.post(`/api/recommendations/${recommendationId}/click`);
+};
+
+// ── Компонент картки рекомендації ─────────────────────────────
+
+function RecommendationCard({
+  rec,
+  rank,
+}: {
+  rec: RecommendationItem;
+  rank: number;
+}) {
+  const qc = useQueryClient();
+
+  const clickMutation = useMutation({
+    mutationFn: () => markClicked(rec.recommendationId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['recommendations'] }),
+  });
+
+  const poster = rec.movie.posterPath
+    ? `${TMDB_IMAGE}${rec.movie.posterPath}`
+    : PLACEHOLDER;
+
+  // Score: для content-based це cosine similarity (0..1)
+  // Показуємо як відсоток відповідності
+  const scorePercent = Math.round(rec.score * 100);
+
+  // Колір badge залежно від score
+  const badgeColor =
+    scorePercent >= 70 ? '#10b981' :
+    scorePercent >= 50 ? '#f59e0b' :
+    '#6366f1';
+
+  return (
+    <Link
+      to={`/movies/${rec.movie.id}`}
+      onClick={() => clickMutation.mutate()}
+      className="group block relative"
+    >
+      <div className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-indigo-500 transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1">
+
+        {/* Rank badge */}
+        <div className="absolute top-2 left-2 z-10 w-7 h-7 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-xs font-bold text-white">
+          {rank}
+        </div>
+
+        {/* Score badge */}
+        <div
+          className="absolute top-2 right-2 z-10 flex items-center gap-1 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full font-medium"
+          style={{ background: `${badgeColor}cc` }}
+        >
+          <Star size={9} fill="currentColor" />
+          {scorePercent}%
+        </div>
+
+        {/* Poster */}
+        <div className="aspect-[2/3] overflow-hidden">
+          <img
+            src={poster}
+            alt={rec.movie.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER; }}
+          />
+        </div>
+
+        {/* Info */}
+        <div className="p-3">
+          <h3 className="text-white font-medium text-sm truncate">
+            {rec.movie.title}
+          </h3>
+          <div className="flex items-center justify-between mt-1">
+            <span className="text-gray-500 text-xs">{rec.movie.releaseYear ?? '—'}</span>
+            {rec.movie.avgRating && (
+              <span className="flex items-center gap-1 text-amber-400 text-xs">
+                <Star size={10} fill="currentColor" />
+                {rec.movie.avgRating.toFixed(1)}
+              </span>
+            )}
+          </div>
+          {rec.movie.genres.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {rec.movie.genres.slice(0, 2).map((g) => (
+                <span key={g} className="text-xs bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded-full">
+                  {g}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// ── Головний компонент ────────────────────────────────────────
 
 export function RecommendationsPage() {
   const [algorithm, setAlgorithm] = useState<Algorithm>('content_based');
   const [requested, setRequested] = useState(false);
 
   const { data: status } = useQuery({
-    queryKey: ['rec-status'],
-    queryFn:  recommendationsApi.getStatus,
+    queryKey:  ['rec-status'],
+    queryFn:   recommendationsApi.getStatus,
   });
 
   const { data: recs, isLoading, refetch } = useQuery({
@@ -31,6 +140,13 @@ export function RecommendationsPage() {
     refetch();
   };
 
+  // Алгоритм label для відображення
+  const algorithmLabel: Record<string, string> = {
+    content_based:  'Content-Based Filtering',
+    collaborative:  'Collaborative Filtering',
+    hybrid:         'Hybrid (Content + Collaborative)',
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
 
@@ -40,17 +156,19 @@ export function RecommendationsPage() {
           <Sparkles className="text-indigo-400" size={32} />
           Recommendations
         </h1>
-        <p className="text-gray-400 mt-2">
-          Personalized movie recommendations based on your taste
+        <p className="text-gray-400 mt-2 text-sm">
+          Personalized movie recommendations based on your taste profile
         </p>
       </div>
 
-      {/* Status card */}
+      {/* Algorithm selector */}
       {status && (
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-6">
+          <p className="text-gray-400 text-sm mb-4">Choose recommendation method:</p>
 
-            {/* Content-based */}
+          <div className="flex flex-col md:flex-row gap-4">
+
+            {/* Content-Based */}
             <div
               onClick={() => setAlgorithm('content_based')}
               className={`flex-1 p-4 rounded-xl border cursor-pointer transition-all ${
@@ -60,14 +178,15 @@ export function RecommendationsPage() {
               }`}
             >
               <div className="flex items-center gap-2 mb-2">
-                <Brain size={20} className="text-indigo-400" />
-                <span className="text-white font-medium">Content-Based</span>
+                <Brain size={18} className="text-indigo-400" />
+                <span className="text-white font-medium text-sm">Content-Based</span>
                 <span className="text-xs bg-green-900/50 text-green-400 px-2 py-0.5 rounded-full border border-green-700/50">
-                  Available
+                  Always available
                 </span>
               </div>
-              <p className="text-gray-400 text-sm">
-                Based on genres and movies you liked. Works from your very first rating.
+              <p className="text-gray-500 text-xs">
+                Based on your genre preferences and movies you rated.
+                Score shows cosine similarity with your taste profile.
               </p>
             </div>
 
@@ -83,8 +202,8 @@ export function RecommendationsPage() {
               }`}
             >
               <div className="flex items-center gap-2 mb-2">
-                <Users size={20} className="text-purple-400" />
-                <span className="text-white font-medium">Collaborative</span>
+                <Users size={18} className="text-purple-400" />
+                <span className="text-white font-medium text-sm">Collaborative</span>
                 {status.collaborativeAvailable ? (
                   <span className="text-xs bg-purple-900/50 text-purple-400 px-2 py-0.5 rounded-full border border-purple-700/50">
                     Unlocked
@@ -95,27 +214,25 @@ export function RecommendationsPage() {
                   </span>
                 )}
               </div>
-              <p className="text-gray-400 text-sm">
-                Based on users with similar taste. Requires 100 ratings.
+              <p className="text-gray-500 text-xs">
+                Based on users with similar taste. Score shows predicted rating.
               </p>
 
-              {/* Progress bar */}
               {!status.collaborativeAvailable && (
                 <div className="mt-3">
-                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <div className="flex justify-between text-xs text-gray-600 mb-1">
                     <span>{status.ratingCount} ratings</span>
-                    <span>{status.ratingsUntilCollaborative} more to unlock</span>
+                    <span>{status.ratingsUntilCollaborative} more needed</span>
                   </div>
                   <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-purple-600 rounded-full transition-all"
-                      style={{ width: `${(status.ratingCount / 100) * 100}%` }}
+                      style={{ width: `${Math.min((status.ratingCount / 100) * 100, 100)}%` }}
                     />
                   </div>
                 </div>
               )}
             </div>
-
           </div>
 
           {/* Get button */}
@@ -127,7 +244,7 @@ export function RecommendationsPage() {
             {isLoading ? (
               <>
                 <RefreshCw size={18} className="animate-spin" />
-                Generating recommendations...
+                Generating...
               </>
             ) : (
               <>
@@ -139,16 +256,37 @@ export function RecommendationsPage() {
         </div>
       )}
 
+      {/* Score legend */}
+      {recs && !isLoading && (
+        <div className="flex items-center gap-6 mb-5 text-xs text-gray-500">
+          <span className="font-medium text-gray-400">Match score:</span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"/>
+            ≥70% Great match
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"/>
+            50–70% Good match
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 inline-block"/>
+            &lt;50% Possible match
+          </span>
+        </div>
+      )}
+
       {/* Results */}
       {recs && !isLoading && (
         <div>
           <div className="flex items-center justify-between mb-5">
-            <p className="text-gray-400 text-sm">
-              {recs.totalCount} recommendations
-              <span className="ml-2 text-xs bg-gray-800 text-gray-500 px-2 py-0.5 rounded-full">
-                {recs.algorithm.replace('_', '-')}
-              </span>
-            </p>
+            <div>
+              <p className="text-gray-400 text-sm">
+                {recs.totalCount} recommendations
+              </p>
+              <p className="text-gray-600 text-xs mt-0.5">
+                {algorithmLabel[recs.algorithm] ?? recs.algorithm}
+              </p>
+            </div>
             <button
               onClick={() => refetch()}
               className="flex items-center gap-1.5 text-gray-400 hover:text-white text-sm transition-colors"
@@ -161,26 +299,21 @@ export function RecommendationsPage() {
             <div className="text-center py-16 text-gray-600">
               <Sparkles size={40} className="mx-auto mb-3 opacity-40" />
               <p>Not enough data yet.</p>
-              <p className="text-sm mt-1">
-                Rate some movies and fill out the survey first.
-              </p>
               <Link
                 to="/survey"
-                className="text-indigo-400 hover:text-indigo-300 text-sm mt-3 inline-block"
+                className="text-indigo-400 hover:text-indigo-300 text-sm mt-3 inline-flex items-center gap-1"
               >
-                Fill out preferences survey →
+                Fill preferences survey <ArrowRight size={14} />
               </Link>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {recs.recommendations.map((rec) => (
-                <div key={rec.recommendationId} className="relative">
-                  <MovieCard movie={rec.movie} />
-                  <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/70 backdrop-blur-sm text-amber-400 text-xs px-2 py-1 rounded-full">
-                    <Star size={10} fill="currentColor" />
-                    {(rec.score * 100).toFixed(0)}%
-                  </div>
-                </div>
+              {recs.recommendations.map((rec, i) => (
+                <RecommendationCard
+                  key={rec.recommendationId}
+                  rec={rec}
+                  rank={i + 1}
+                />
               ))}
             </div>
           )}

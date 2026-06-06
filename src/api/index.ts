@@ -162,3 +162,10 @@ export const explainerApi = {
     return data;
   },
 };
+
+export const evaluationApi = {
+  getMetrics: async () => {
+    const { data } = await api.get('/api/evaluation');
+    return data;
+  },
+};

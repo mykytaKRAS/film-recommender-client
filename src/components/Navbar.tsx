@@ -21,12 +21,21 @@ export function Navbar() {
         </Link>
 
         {isAuthenticated && (
-        <Link to="/recommendations" className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm">
-          <Sparkles size={16} />
-          Recommendations
+          <Link
+            to="/recommendations"
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm"
+          >
+            <Sparkles size={16} />
+            Recommendations
+          </Link>
+        )}
+
+        {/*
+        <Link to="/explainer" className="...">
+          Math Log
         </Link>
-)}
-<Link to="/explainer" className="...">Math Log</Link>
+        */}
+
         <div className="flex items-center gap-4">
           {isAuthenticated ? (
             <>
@@ -37,6 +46,7 @@ export function Navbar() {
                 <User size={18} />
                 <span className="text-sm">{username}</span>
               </Link>
+
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-1 text-gray-400 hover:text-red-400 transition-colors text-sm"

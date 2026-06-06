@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { User, Star, BookMarked, Eye, Clock, Trash2 } from 'lucide-react';
+import { User, Star, BookMarked, Eye, Clock, Trash2, ClipboardList } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { authApi, watchListApi, ratingsApi } from '../api';
@@ -69,16 +69,25 @@ export function ProfilePage() {
 
       {/* Profile header */}
       <div className="flex items-center gap-4 mb-8">
-        <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center">
+        <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center shrink-0">
           <User size={28} className="text-white" />
         </div>
-        <div>
+        <div className="flex-1 min-w-0">
           <h1 className="text-2xl font-bold text-white">{profile?.username}</h1>
           <p className="text-gray-400 text-sm">{profile?.email}</p>
           <p className="text-gray-600 text-xs mt-1">
             Member since {profile ? new Date(profile.createdAt).toLocaleDateString() : '—'}
           </p>
         </div>
+        {/* Кнопка оновлення анкети */}
+        <Link
+          to="/survey"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-700 text-gray-400 hover:text-white hover:border-indigo-500 hover:bg-indigo-950/30 transition-all text-sm shrink-0"
+        >
+          <ClipboardList size={16} />
+          <span className="hidden sm:inline">Update preferences</span>
+          <span className="sm:hidden">Survey</span>
+        </Link>
       </div>
 
       {/* Main tabs */}
@@ -101,7 +110,6 @@ export function ProfilePage() {
       {/* Watch List */}
       {tab === 'watchlist' && (
         <div>
-          {/* Status sub-tabs */}
           <div className="flex gap-2 mb-5 flex-wrap">
             {STATUS_TABS.map((s) => (
               <button
@@ -151,7 +159,8 @@ export function ProfilePage() {
                       <img
                         src={poster}
                         alt={item.movie.title}
-                        className="w-12 h-18 rounded-lg object-cover"
+                        className="w-12 rounded-lg object-cover"
+                        style={{ aspectRatio: '2/3' }}
                         onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER; }}
                       />
                     </Link>
@@ -166,8 +175,6 @@ export function ProfilePage() {
                       <p className="text-gray-500 text-xs mt-0.5">
                         {item.movie.releaseYear} · {item.movie.genres.slice(0, 2).join(', ')}
                       </p>
-
-                      {/* Status selector */}
                       <div className="flex gap-1 mt-2">
                         {(['want', 'watching', 'watched'] as WatchStatus[]).map((s) => (
                           <button
@@ -240,6 +247,7 @@ export function ProfilePage() {
                         src={poster}
                         alt={r.movie.title}
                         className="w-12 rounded-lg object-cover"
+                        style={{ aspectRatio: '2/3' }}
                         onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER; }}
                       />
                     </Link>
