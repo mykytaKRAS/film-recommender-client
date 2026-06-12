@@ -37,12 +37,8 @@ export function MoviesPage() {
     queryKey: ['movies', filters, search],
     queryFn: () =>
       search.length >= 2
-        ? moviesApi.search(search, filters.page, filters.pageSize).then((items) => ({
-            items,
-            totalCount: items.length,
-            page: 1, pageSize: filters.pageSize,
-            totalPages: 1, hasNext: false, hasPrev: false,
-          }))
+        // Передаємо всі фільтри в пошук (переконайтеся, що api.ts приймає їх)
+        ? moviesApi.search(search, filters) 
         : moviesApi.getAll(filters),
     placeholderData: (prev) => prev,
   });

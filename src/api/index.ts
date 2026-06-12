@@ -40,10 +40,17 @@ export const moviesApi = {
     return data;
   },
 
-  search: async (q: string, page = 1, pageSize = 20) => {
-    const { data } = await api.get<MovieSummary[]>('/api/movies/search', {
-      params: { q, page, pageSize },
-    });
+  search: async (q: string, filters: MovieFilters) => {
+    // Очищаємо фільтри від порожніх значень, як і в getAll
+    const cleanFilters = Object.fromEntries(
+      Object.entries(filters).filter(([, v]) => v !== undefined && v !== '')
+    );
+    
+    // Об'єднуємо рядок пошуку з очищеними фільтрами
+    const params = { q, ...cleanFilters };
+
+    // ЗВЕРНІТЬ УВАГУ: тип змінено на PagedResult<MovieSummary>
+    const { data } = await api.get<PagedResult<MovieSummary>>('/api/movies/search', { params });
     return data;
   },
 
@@ -107,7 +114,7 @@ export const watchListApi = {
 };
 
 // ── Survey ────────────────────────────────────────────────────
-
+/*
 export const surveyApi = {
   get: async () => {
     const { data } = await api.get<SurveyData>('/api/survey');
@@ -116,6 +123,25 @@ export const surveyApi = {
 
   submit: async (genreWeights: Record<number, number>, favoriteMovieIds: string[]) => {
     await api.post('/api/survey', { genreWeights, favoriteMovieIds });
+  },
+};*/
+export const surveyApi = {
+  get: async () => {
+    const { data } = await api.get<SurveyData>('/api/survey');
+    return data;
+  },
+
+  // ОНОВЛЕНО: додано extraWeights
+  submit: async (
+    genreWeights: Record<number, number>,
+    favoriteMovieIds: string[],
+    extraWeights?: Record<string, number>
+  ) => {
+    await api.post('/api/survey', {
+      genreWeights,
+      favoriteMovieIds,
+      extraWeights: extraWeights ?? null,
+    });
   },
 };
 
