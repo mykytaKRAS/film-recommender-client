@@ -6,7 +6,7 @@ import { explainerApi } from '../api';
 
 const TMDB = 'https://image.tmdb.org/t/p/w92';
 
-// ── helpers ──────────────────────────────────────────────────
+//helpers
 
 function Bar({ value, max = 1, color = '#6366f1' }: {
   value: number; max?: number; color?: string;
@@ -81,7 +81,7 @@ function Pill({ label, value, color = '#6366f1' }: {
   );
 }
 
-// ── Content-Based Section ─────────────────────────────────────
+//Content-Based Section
 
 function ContentBasedView({ data }: { data: any }) {
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -89,7 +89,7 @@ function ContentBasedView({ data }: { data: any }) {
   return (
     <div>
 
-      {/* Крок 1 — Survey */}
+      {/*Survey*/}
       <Card title="Step 1 — Survey contribution (weight × 0.4)" accent="#10b981">
         <p style={{ color: '#6b7280', fontSize: 12, marginBottom: 12 }}>
           Each genre preference from the survey is multiplied by 0.4 to form the base user vector.
@@ -113,7 +113,7 @@ function ContentBasedView({ data }: { data: any }) {
         )}
       </Card>
 
-      {/* Крок 2 — Ratings */}
+      {/*Ratings*/}
       <Card title="Step 2 — Ratings contribution (rating/10 × 0.6)" accent="#f59e0b">
         <p style={{ color: '#6b7280', fontSize: 12, marginBottom: 12 }}>
           For each movie rated ≥ 6, its feature vector is weighted by (rating/10 × 0.6)
@@ -132,7 +132,7 @@ function ContentBasedView({ data }: { data: any }) {
         </div>
       </Card>
 
-      {/* Крок 3 — User vector */}
+      {/*User vector*/}
       <Card title="Step 3 — Normalized user profile vector" accent="#6366f1">
         <p style={{ color: '#6b7280', fontSize: 12, marginBottom: 12 }}>
           The combined vector is normalized to unit length (magnitude = 1) so that
@@ -149,7 +149,7 @@ function ContentBasedView({ data }: { data: any }) {
         </div>
       </Card>
 
-      {/* Крок 4 — Cosine similarity */}
+      {/*Cosine similarity*/}
       <Card title="Step 4 — Cosine similarity for top candidates" accent="#ec4899">
         <p style={{ color: '#6b7280', fontSize: 12, marginBottom: 12 }}>
           For each candidate movie, cosine similarity is calculated between the user vector
@@ -199,7 +199,7 @@ function ContentBasedView({ data }: { data: any }) {
                 </div>
               </div>
 
-              {/* Формула з підстановкою */}
+              {/*Формула з підстановкою*/}
               {expanded === c.movieId && (
                 <div style={{ marginTop: 16 }}>
                   <Formula tex={
@@ -242,7 +242,7 @@ function ContentBasedView({ data }: { data: any }) {
         </div>
       </Card>
 
-      {/* Крок 5 — Final recommendations */}
+      {/*Final recommendations*/}
       <Card title="Step 5 — Final recommendations (sorted by score)" accent="#22d3ee">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {data.finalRecommendations.map((r: any, i: number) => (
@@ -269,7 +269,7 @@ function ContentBasedView({ data }: { data: any }) {
   );
 }
 
-// ── Collaborative Section ─────────────────────────────────────
+//Collaborative Section
 
 function CollaborativeView({ data }: { data: any }) {
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -277,7 +277,7 @@ function CollaborativeView({ data }: { data: any }) {
   return (
     <div>
 
-      {/* Крок 1 — User similarities */}
+      {/*User similarities*/}
       <Card title="Step 1 — Pearson correlation with other users" accent="#8b5cf6">
         <p style={{ color: '#6b7280', fontSize: 12, marginBottom: 12 }}>
           For each other user who has ≥3 movies in common, Pearson correlation is calculated
@@ -371,7 +371,7 @@ function CollaborativeView({ data }: { data: any }) {
         </div>
       </Card>
 
-      {/* Крок 2 — Predicted scores */}
+      {/*Predicted scores*/}
       <Card title="Step 2 — Weighted predicted scores for unseen movies" accent="#f97316">
         <p style={{ color: '#6b7280', fontSize: 12, marginBottom: 12 }}>
           For each movie not yet seen, the predicted score is calculated as a
@@ -450,7 +450,7 @@ function CollaborativeView({ data }: { data: any }) {
   );
 }
 
-// ── Main Page ─────────────────────────────────────────────────
+//Main Page
 
 export function ExplainerPage() {
   const [tab, setTab] = useState<'content' | 'collaborative'>('content');

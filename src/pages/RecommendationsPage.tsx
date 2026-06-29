@@ -1,6 +1,3 @@
-// src/pages/RecommendationsPage.tsx
-// Оновлена версія з was_clicked та правильним відображенням метрик
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Sparkles, Brain, Users, Lock, RefreshCw, Star, ArrowRight } from 'lucide-react';
@@ -21,13 +18,13 @@ interface RecommendationItem {
   algorithm: string;
 }
 
-// ── API функції ───────────────────────────────────────────────
+//API функції
 
 const markClicked = async (recommendationId: string) => {
   await api.post(`/api/recommendations/${recommendationId}/click`);
 };
 
-// ── Компонент картки рекомендації ─────────────────────────────
+//Компонент картки рекомендації
 
 function RecommendationCard({
   rec,
@@ -47,11 +44,8 @@ function RecommendationCard({
     ? `${TMDB_IMAGE}${rec.movie.posterPath}`
     : PLACEHOLDER;
 
-  // Score: для content-based це cosine similarity (0..1)
-  // Показуємо як відсоток відповідності
   const scorePercent = Math.round(rec.score * 100);
 
-  // Колір badge залежно від score
   const badgeColor =
     scorePercent >= 70 ? '#10b981' :
     scorePercent >= 50 ? '#f59e0b' :
@@ -118,7 +112,7 @@ function RecommendationCard({
   );
 }
 
-// ── Головний компонент ────────────────────────────────────────
+//Головний компонент
 
 export function RecommendationsPage() {
   const [algorithm, setAlgorithm] = useState<Algorithm>('content_based');
@@ -140,7 +134,6 @@ export function RecommendationsPage() {
     refetch();
   };
 
-  // Алгоритм label для відображення
   const algorithmLabel: Record<string, string> = {
     content_based:  'Content-Based Filtering',
     collaborative:  'Collaborative Filtering',

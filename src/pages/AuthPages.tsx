@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { authApi } from '../api';
 import { useAuthStore } from '../store/authStore';
 
-// ── Login ─────────────────────────────────────────────────────
+//Login
 
 export function LoginPage() {
   const [email, setEmail]       = useState('');
@@ -87,7 +87,7 @@ export function LoginPage() {
   );
 }
 
-// ── Register ──────────────────────────────────────────────────
+//Register
 
 export function RegisterPage() {
   const [email, setEmail]       = useState('');

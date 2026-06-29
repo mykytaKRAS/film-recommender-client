@@ -6,7 +6,7 @@ import type {
   SurveyData, MovieFilters,
 } from '../types';
 
-// ── Auth ──────────────────────────────────────────────────────
+// Auth
 
 export const authApi = {
   register: async (email: string, username: string, password: string) => {
@@ -29,7 +29,7 @@ export const authApi = {
   },
 };
 
-// ── Movies ────────────────────────────────────────────────────
+// Movies
 
 export const moviesApi = {
   getAll: async (filters: MovieFilters) => {
@@ -41,15 +41,12 @@ export const moviesApi = {
   },
 
   search: async (q: string, filters: MovieFilters) => {
-    // Очищаємо фільтри від порожніх значень, як і в getAll
     const cleanFilters = Object.fromEntries(
       Object.entries(filters).filter(([, v]) => v !== undefined && v !== '')
     );
     
-    // Об'єднуємо рядок пошуку з очищеними фільтрами
     const params = { q, ...cleanFilters };
 
-    // ЗВЕРНІТЬ УВАГУ: тип змінено на PagedResult<MovieSummary>
     const { data } = await api.get<PagedResult<MovieSummary>>('/api/movies/search', { params });
     return data;
   },
@@ -60,7 +57,7 @@ export const moviesApi = {
   },
 };
 
-// ── Genres ────────────────────────────────────────────────────
+// Genres
 
 export const genresApi = {
   getAll: async () => {
@@ -69,7 +66,7 @@ export const genresApi = {
   },
 };
 
-// ── Ratings ───────────────────────────────────────────────────
+// Ratings
 
 export const ratingsApi = {
   getMy: async () => {
@@ -90,7 +87,7 @@ export const ratingsApi = {
   },
 };
 
-// ── WatchList ─────────────────────────────────────────────────
+// WatchList
 
 export const watchListApi = {
   getAll: async (status?: string) => {
@@ -113,7 +110,7 @@ export const watchListApi = {
   },
 };
 
-// ── Survey ────────────────────────────────────────────────────
+// Survey
 /*
 export const surveyApi = {
   get: async () => {
@@ -131,7 +128,6 @@ export const surveyApi = {
     return data;
   },
 
-  // ОНОВЛЕНО: додано extraWeights
   submit: async (
     genreWeights: Record<number, number>,
     favoriteMovieIds: string[],
@@ -145,7 +141,7 @@ export const surveyApi = {
   },
 };
 
-// ── Recommendations ────────────────────────────────────────────────────
+// Recommendations
 
 export const recommendationsApi = {
   getStatus: async () => {

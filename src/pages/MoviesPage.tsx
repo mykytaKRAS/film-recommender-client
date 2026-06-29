@@ -14,7 +14,7 @@ const SORT_OPTIONS = [
 
 const LANGUAGES = [
   { value: 'en', label: 'English' },
-  { value: 'uk', label: 'Ukrainian' },
+  { value: 'it', label: 'Italian' },
   { value: 'fr', label: 'French' },
   { value: 'de', label: 'German' },
   { value: 'ja', label: 'Japanese' },
@@ -114,7 +114,7 @@ export function MoviesPage() {
           <div>
             <label className="text-gray-400 text-xs mb-1 block">Year from</label>
             <input
-              type="number" min="1900" max="2025" placeholder="1900"
+              type="number" min="1900" max="2026" placeholder="1900"
               value={filters.yearFrom ?? ''}
               onChange={(e) => setFilter('yearFrom', e.target.value ? Number(e.target.value) : undefined)}
               className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm"
@@ -124,7 +124,7 @@ export function MoviesPage() {
           <div>
             <label className="text-gray-400 text-xs mb-1 block">Year to</label>
             <input
-              type="number" min="1900" max="2025" placeholder="2025"
+              type="number" min="1900" max="2026" placeholder="2026"
               value={filters.yearTo ?? ''}
               onChange={(e) => setFilter('yearTo', e.target.value ? Number(e.target.value) : undefined)}
               className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm"

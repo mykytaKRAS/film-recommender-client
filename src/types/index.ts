@@ -1,4 +1,4 @@
-// ── Auth ──────────────────────────────────────────────────────
+//Auth
 
 export interface AuthResponse {
   userId: string;
@@ -14,7 +14,7 @@ export interface UserProfile {
   createdAt: string;
 }
 
-// ── Movies ────────────────────────────────────────────────────
+//Movies
 
 export interface MovieSummary {
   id: string;
@@ -59,7 +59,7 @@ export interface PagedResult<T> {
   hasPrev: boolean;
 }
 
-// ── Ratings ───────────────────────────────────────────────────
+//Ratings
 
 export interface UserRatingDto {
   id: string;
@@ -76,7 +76,7 @@ export interface MyRatingDto {
   ratedAt: string;
 }
 
-// ── WatchList ─────────────────────────────────────────────────
+//WatchList
 
 export type WatchStatus = 'want' | 'watching' | 'watched';
 
@@ -87,14 +87,14 @@ export interface WatchListItem {
   addedAt: string;
 }
 
-// ── Genres ────────────────────────────────────────────────────
+// Genres 
 
 export interface Genre {
   id: number;
   name: string;
 }
 
-// ── Survey ────────────────────────────────────────────────────
+// Survey 
 
 export interface SurveyQuestion {
   genreId: number;
@@ -106,7 +106,7 @@ export interface SurveyData {
   isComplete: boolean;
 }
 
-// ── Filters ───────────────────────────────────────────────────
+// Filters 
 
 export interface MovieFilters {
   genreId?: number;

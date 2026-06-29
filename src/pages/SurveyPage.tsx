@@ -248,7 +248,7 @@ function Step2Movies({
                     </div>
                   )}
                 </div>
-                <p className="text-gray-400 text-xs text-center line-clamp-2 leading-tight">
+                <p className="text-gray-400 text-xs text-center truncate">
                   {movie.title}
                 </p>
                 <div className="flex gap-1.5">
@@ -527,6 +527,16 @@ export function SurveyPage() {
       if (state.avoidContent.includes('horror')) {
         const horror = genres.find(g => g.name === 'Horror');
         if (horror) weights[horror.id] = 0;
+      }
+      if (state.avoidContent.includes('violence')) {
+        ['War', 'Crime'].forEach(name => {
+          const g = genres.find(g => g.name === name);
+        if (g) weights[g.id] = Math.max(0, (weights[g.id] ?? 0) - 0.3);
+        });
+      }
+      if (state.avoidContent.includes('sad')) {
+        const drama = genres.find(g => g.name === 'Drama');
+        if (drama) weights[drama.id] = Math.max(0, (weights[drama.id] ?? 0) - 0.2);
       }
 
       // 4. Корекція від vibe (крок 4)
